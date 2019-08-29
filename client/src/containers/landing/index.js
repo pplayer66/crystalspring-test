@@ -1,13 +1,8 @@
 import React, { Fragment, Component, useLayoutEffect } from "react";
-import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { YMaps, Map, Placemark } from "react-yandex-maps";
-
-import $ from "jquery";
 
 import "./landing.css";
 import usrs from "./users.json";
-import axios from "axios";
 
 class Main extends Component {
   constructor(props) {
@@ -29,12 +24,6 @@ class Main extends Component {
     this.delete = this.delete.bind(this);
   }
 
-  componentDidMount() {}
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    return {};
-  }
-
   togle() {
     this.setState(prevState => ({
       togle: !prevState.togle
@@ -47,27 +36,20 @@ class Main extends Component {
     }));
   }
 
-  add(user, item, e) {
-    user.roles.push(item);
-
-    this.setState(prevState => ({
-      users: prevState.users.map(el =>
-        el.id === user.id ? { ...el, user } : el
-      )
-    }));
+  add(user, item) {
+    this.setState({
+      users: this.state.users.map(usr => {
+        return usr.id == user.id ? { ...user, roles: [...user.roles, item] } : usr
+      })
+    })
   }
 
-  delete(user, item, e) {
-    user.roles = user.roles.filter(function(i) {
-      console.log(i);
-      return i.code !== item.code;
-    });
-
-    this.setState(prevState => ({
-      users: prevState.users.map(el =>
-        el.id === user.id ? { ...el, user } : el
-      )
-    }));
+  delete(user, item) {
+    this.setState({
+      users: this.state.users.map(usr => {
+        return user.id == usr.id ? { ...usr, roles: usr.roles.filter(role => role.code !== item.code) } : usr
+      })
+    })
   }
 
   render() {
@@ -85,17 +67,17 @@ class Main extends Component {
           <div className="items">
             {this.state.togle
               ? this.state.users.map((user, k) => {
-                  return (
-                    <div key={k} className="item">
-                      <div className="item-title">{user.name}</div>
-                      <div className="item-id">id : {user.id}</div>
-                      <div className="item-roles-title">Права :</div>
-                      {this.state.change ? (
-                        <div className="roles">
-                          {this.state.roles.map((item, key) => {
-                            return user.roles.find(i => {
-                              return i.code === item.code;
-                            }) === undefined ? (
+                return (
+                  <div key={k} className="item">
+                    <div className="item-title">{user.name}</div>
+                    <div className="item-id">id : {user.id}</div>
+                    <div className="item-roles-title">Права :</div>
+                    {this.state.change ? (
+                      <div className="roles">
+                        {this.state.roles.map((item, key) => {
+                          return user.roles.find(i => {
+                            return i.code === item.code;
+                          }) === undefined ? (
                               <div key={key} className="role">
                                 <input
                                   type="checkbox"
@@ -119,9 +101,9 @@ class Main extends Component {
                                 {item.name}
                               </div>
                             );
-                          })}
-                        </div>
-                      ) : (
+                        })}
+                      </div>
+                    ) : (
                         <div className="roles">
                           {user.roles.map((item, key) => {
                             return (
@@ -132,9 +114,9 @@ class Main extends Component {
                           })}
                         </div>
                       )}
-                    </div>
-                  );
-                })
+                  </div>
+                );
+              })
               : null}
           </div>
         </div>
